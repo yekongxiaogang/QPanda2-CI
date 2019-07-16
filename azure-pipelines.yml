@@ -1,0 +1,91 @@
+# Universal Windows Platform
+# Build a Universal Windows Platform project using Visual Studio.
+# Add steps that test and distribute an app, save build artifacts, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'vs2017-win10'
+timeoutInMinutes: 360
+
+jobs:
+# Configure, build , and test job
+- job: 'Configure'
+
+steps:
+ # Check Python
+      - script: |
+          setlocal EnableDelayedExpansion
+          echo python.version: %PYTHON_VERSION%
+          set VALID=false
+          if "%PYTHON_VERSION%"=="3.6" set VALID=true
+          if "%PYTHON_VERSION%"=="3.7" set VALID=true
+          if "!VALID!"=="false" (
+            echo ERROR: Invalid "python.version" value: "%PYTHON_VERSION%". Valid values: "3.6" and "3.7".
+            exit 1
+          )
+        displayName: "Check Python version: $(python.version)"
+
+   # Check cmake configuration
+      - script: |
+          setlocal EnableDelayedExpansion
+          echo cmake.build_type: %CMAKE_BUILD_TYPE%
+          set VALID=false
+          if "%CMAKE_BUILD_TYPE%"=="Debug" set VALID=true
+          if "%CMAKE_BUILD_TYPE%"=="Release" set VALID=true
+          if "!VALID!"=="false" (
+            echo ERROR: Invalid "cmake.build_type" value: "%CMAKE_BUILD_TYPE%". Valid values: "Debug" and "Release".
+            exit 1
+          )
+        displayName: "Check cmake configuration"
+
+  # Check conda configuration
+      - script: |
+          setlocal EnableDelayedExpansion
+          echo conda.build: %CONDA_BUILD%
+          set VALID=false
+          if "%CONDA_BUILD%"=="true" set VALID=true
+          if "%CONDA_BUILD%"=="false" set VALID=true
+          if "!VALID!"=="false" (
+            echo ERROR: Invalid "conda.build" value: "%CONDA_BUILD%". Valid values: "true" and "false".
+            exit 1
+          )
+        displayName: "Check conda configuration"
+
+  # Install Miniconda
+      - script: |
+          choco install miniconda3 --yes
+          set PATH=C:\tools\miniconda3\Scripts;C:\tools\miniconda3;C:\tools\miniconda3\Library\bin;%PATH%
+          echo '##vso[task.setvariable variable=PATH]%PATH%'
+          set LIB=C:\tools\miniconda3\Library\lib;%LIB%
+          echo '##vso[task.setvariable variable=LIB]%LIB%'
+          conda --version
+        displayName: "Install Miniconda"
+
+  # Configure Miniconda
+      - script: |
+          conda config --set always_yes yes
+          conda config --append channels conda-forge
+          conda info
+        displayName: "Configure Miniconda"
+
+  # Create conda enviroment
+       - script: |
+          conda install cmake ^
+                        conda-build ^
+                        conda-verify ^
+                        python=%PYTHON_VERSION% ^
+          conda list
+        displayName: "Install conda packages"
+
+#build
+   - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
+          mkdir build & cd build
+          cmake  -G  "Visual Studio 15 2017" -A x64 .. ^
+        displayName: "Build QPanda"
+        workingDirectory: $(Build.BinariesDirectory)/build
+
+
