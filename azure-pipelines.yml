@@ -8,7 +8,6 @@ trigger:
 
 pool:
   vmImage: 'vs2017-win10'
-timeoutInMinutes: 360
 
 jobs:
 # Configure, build , and test job
