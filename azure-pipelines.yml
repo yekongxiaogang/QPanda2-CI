@@ -11,9 +11,9 @@ pool:
 
 jobs:
 # Configure, build , and test job
-- job: 'Configure'
+  - job: 'Configure'
 
-steps:
+    steps:
  # Check Python
       - script: |
           setlocal EnableDelayedExpansion
@@ -80,7 +80,7 @@ steps:
         displayName: "Install conda packages"
 
 #build
-   - script: |
+      - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
           mkdir build & cd build
           cmake  -G  "Visual Studio 15 2017" -A x64 .. ^
