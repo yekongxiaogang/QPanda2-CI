@@ -1,4 +1,4 @@
-# Universal Windows Platform
+# Universal Windows Platform  
 # Build a Universal Windows Platform project using Visual Studio.
 # Add steps that test and distribute an app, save build artifacts, and more:
 # https://aka.ms/yaml
@@ -12,9 +12,9 @@ pool:
 steps:
 - script: |
     mkdir build & cd build
-    cmake  -G  "Visual Studio 15 2017" -A x64 ..
+    cmake -A x64 ..
     call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
-    MSBuild.exe  QPANDA.sln
+    cmake --build . -- /p:Configuration=Release
 
 
   displayName: 'build QPanda2'
