@@ -12,6 +12,8 @@ pool:
 steps:
 - script: |
     mkdir build & cd build
+    pwd
+    ls
     cmake  ..
     make 
 
